@@ -17,7 +17,7 @@ namespace DXHealthBot
 
             using (var client = new HttpClient())
             {
-                string uri = "https://api.projectoxford.ai/luis/v1/application?id=&subscription-key=&q=" + strEscaped;
+                string uri = "https://api.projectoxford.ai/luis/v1/application?id=4b4d4560-4b80-4b73-8d82-462e598d7280&subscription-key=5e4f605bd80b4f2bbd10789647bb5a10&q=" + strEscaped;
                 HttpResponseMessage msg = await client.GetAsync(uri);
 
                 if (msg.IsSuccessStatusCode)
