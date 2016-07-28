@@ -51,12 +51,20 @@ namespace DXHealthBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
+                string strReply = string.Empty;
+
+                // TO DO - set appID and subs Key and import health intents from json
+                // HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);
+
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                // calculate something for us to return
-                int length = (activity.Text ?? string.Empty).Length;
+
+                //TO DO
+                //env vars and check token etc.
+
+                strReply = "hello";
 
                 // return our reply to the user
-                Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
+                Activity reply = activity.CreateReply(strReply);
                 await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
@@ -66,6 +74,7 @@ namespace DXHealthBot
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
+
 
         private Activity HandleSystemMessage(Activity message)
         {
@@ -87,7 +96,7 @@ namespace DXHealthBot
             }
             else if (message.Type == ActivityTypes.Typing)
             {
-                // Handle knowing tha the user is typing
+                // Handle knowing that the user is typing
             }
             else if (message.Type == ActivityTypes.Ping)
             {
