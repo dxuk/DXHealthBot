@@ -14,7 +14,7 @@ namespace DXHealthBot
 {
     public interface IIntentProcessor
     {
-        bool ProcessIntent(string intent, ref string result);
+        Task<Tuple<bool, string>> ProcessIntentAsync(string userId, ICredentialStore creds, HealthLUIS data);
     }
 
     [BotAuthentication]
@@ -32,15 +32,18 @@ namespace DXHealthBot
             _creds = MyDependencies._store;
         }
 
-        private string CheckIntents(HealthLUIS stLuis)
+        private async Task<string> CheckIntentsAsync(HealthLUIS stLuis, Activity activity)
         {
             string strResult = string.Empty;
 
             foreach (var intentHandler in MyDependencies.IntentHandlers)
             {
-                bool handled = intentHandler.ProcessIntent(stLuis.intents[0].intent, ref strResult);
-                if (handled == true)
+                var handled = await intentHandler.ProcessIntentAsync(activity.From.Id, _creds, stLuis);
+                if (handled.Item1 == true)
+                {
+                    strResult = handled.Item2;
                     break;
+                }
             }
 
             if (string.IsNullOrEmpty(strResult))
@@ -106,7 +109,7 @@ namespace DXHealthBot
                     {
                         // LUIS
                         HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);
-                        strRet = CheckIntents(stLuis);
+                        strRet = await CheckIntentsAsync(stLuis, activity);
                     }
                 }
                 catch (Exception ex)

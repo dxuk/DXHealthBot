@@ -19,7 +19,7 @@ namespace DXHealthBot
             _creds = MyDependencies._store;
         }
 
-        private static string RedirectUri = "http://localhost:3978/api/auth/receivetoken";
+        private static string RedirectUri = "http://localhost:3979/api/auth/receivetoken";
         private readonly string ClientId;
         private static string Scopes = "mshealth.ReadDevices mshealth.ReadActivityHistory mshealth.ReadActivityLocation mshealth.ReadDevices mshealth.ReadProfile offline_access";
         private readonly string ClientSecret;

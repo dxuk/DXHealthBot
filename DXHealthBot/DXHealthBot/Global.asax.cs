@@ -36,6 +36,10 @@ namespace DXHealthBot
 
         public string GetToken(string id, string tokenKey)
         {
+            var hacktoken = Environment.GetEnvironmentVariable("DXHACKTOKEN");
+            if (!string.IsNullOrEmpty(hacktoken))
+                return hacktoken;
+
             Dictionary<string, string> dict = null;
             string token = null;
             if (_idMap.TryGetValue(id, out dict))

@@ -1,19 +1,66 @@
-﻿using System;
+﻿using NodaTime;
+using NodaTime.Text;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
+using Microsoft.Bot.Connector;
+using DXHealthBot.Model;
 
 namespace DXHealthBot.HEALTH
 {
     public class HealthApiIntentHandler : IIntentProcessor
     {
-        public bool ProcessIntent(string intent, ref string result)
+        public async Task<Tuple<bool, string>> ProcessIntentAsync(string userId, ICredentialStore creds, HealthLUIS data)
         {
             bool ret = false;
-            switch (intent)
+            string resultStr = null;
+            var entityStr = data.entities.FirstOrDefault(e => e.type == "ActivityType").entity;
+
+            switch (data.intents[0].intent)
             {
                 case "SummariseActivity":
-                    result = "Hi from Health!";
+                    var entityTime = (lEntity)data.entities.FirstOrDefault(e =>
+                        e.type == "builtin.datetime.time" ||
+                        e.type == "builtin.datetime.duration" ||
+                        e.type == "builtin.datetime.date");
+
+                    ParseResult<Period> res = null;
+
+                    // TODO: parse the time formats correctly...
+                    if (entityTime.type == "builtin.datetime.duration")
+                    {
+                        res = PeriodPattern.NormalizingIsoPattern.Parse(entityTime.resolution.duration);
+                    }
+                    else if (entityTime.type == "builtin.datetime.time")
+                    {
+                        res = PeriodPattern.NormalizingIsoPattern.Parse(entityTime.resolution.time);
+                    }
+                    else if (entityTime.type == "builtin.datetime.date")
+                    {
+                        var pattern = LocalDatePattern.CreateWithInvariantCulture("yyyy-MM-dd");
+                        LocalDate parseResult = pattern.Parse(entityTime.resolution.date).Value;
+                    }
+
+
+
+                    //var st = SystemClock.Instance.GetCurrentInstant().InUtc().LocalDateTime - res.Value;
+
+                    // TODO: Make it work dynamically
+                    //DateTime start = st.ToDateTimeUnspecified();
+                    DateTime start = DateTime.Now.AddDays(-1);
+                    DateTime end = DateTime.Now;
+
+
+                    var token = creds.GetToken(userId, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        var loginUri = new Uri($"http://localhost:3979/api/auth/home?UserId={userId}");
+                        resultStr = $"Please pay a visit to {loginUri.ToString()} to associate your user identity with your Microsoft Health identity.";
+                        return Tuple.Create(true, resultStr);
+                    }
+                    var result = await HealthAPI.GetActivity(token, entityStr, start, end);
                     ret = true;
                     break;
                     //var entityStr = data.entities.FirstOrDefault(e => e.type == "ActivityType").entity;
@@ -87,7 +134,7 @@ namespace DXHealthBot.HEALTH
 
                     //    }
             }
-            return ret;
+            return Tuple.Create(ret, resultStr);
         }
     }
 }
