@@ -129,8 +129,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="HEALTH\HealthAPI.cs" />
     <Compile Include="LUIS\LUIS.cs" />
-    <Compile Include="Model.cs" />
+    <Compile Include="HEALTH\Model.cs" />
+    <Compile Include="GRAPH\GraphAPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
