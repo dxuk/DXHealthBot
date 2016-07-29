@@ -130,6 +130,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="HEALTH\HealthAPI.cs" />
+    <Compile Include="HEALTH\HealthApiIntentHandler.cs" />
     <Compile Include="LUIS\LUIS.cs" />
     <Compile Include="HEALTH\Model.cs" />
     <Compile Include="GRAPH\GraphAPI.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DXHealthBot.HEALTH;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -48,9 +49,16 @@ namespace DXHealthBot
         }
     }
 
-    public class MyDependencies
+    public static class MyDependencies
     {
+        static MyDependencies()
+        {
+            // Register Intent Processors...
+            IntentHandlers.Add(new HealthApiIntentHandler());
+        }
+
         public static ICredentialStore _store = new CredentialStore();
+        public static List<IIntentProcessor> IntentHandlers = new List<IIntentProcessor>();
     }
 
     public class WebApiApplication : System.Web.HttpApplication
