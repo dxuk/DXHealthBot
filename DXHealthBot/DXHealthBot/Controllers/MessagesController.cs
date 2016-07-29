@@ -27,24 +27,6 @@ namespace DXHealthBot
         }
 
 
-        private async Task<MSHealthUserText> ParseUserInput(string input)
-        {
-            string escaped = Uri.EscapeDataString(input);
-
-            using (var http = new HttpClient())
-            {
-                string key = Environment.GetEnvironmentVariable("MSHEALTHBOT_LUIS_API_KEY");
-                string id = Environment.GetEnvironmentVariable("MSHEALTHBOT_LUIS_APP_ID");
-
-                string uri = $"https://api.projectoxford.ai/luis/v1/application?id={id}&subscription-key={key}&q={escaped}";
-                var resp = await http.GetAsync(uri);
-                resp.EnsureSuccessStatusCode();
-
-                var strRes = await resp.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<MSHealthUserText>(strRes);
-                return data;
-            }
-        }
 
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
