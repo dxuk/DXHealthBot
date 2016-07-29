@@ -95,7 +95,7 @@ namespace DXHealthBot
                 }
 
                 dynamic obj = JsonConvert.DeserializeObject(result);
-                _creds.AddToken(state, obj.access_token.ToString());
+                _creds.AddToken(state, CredentialStore.MSHEALTHAPI_TOKEN_KEY, obj.access_token.ToString());
                 return "Done, thanks!";
             }
             return "Something went wrong - please try again!";
