@@ -16,33 +16,51 @@ namespace DXHealthBot.HEALTH
         {
             bool ret = false;
             string resultStr = null;
-            var entityStr = data.entities.FirstOrDefault(e => e.type == "ActivityType").entity;
+
+            var token = creds.GetToken(userId, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
+            if (string.IsNullOrEmpty(token))
+            {
+                var loginUri = new Uri($"http://localhost:3979/api/auth/home?UserId={userId}");
+                resultStr = $"Please pay a visit to {loginUri.ToString()} to associate your user identity with your Microsoft Health identity.";
+                return Tuple.Create(true, resultStr);
+            }
+
+            var entity = data.entities.FirstOrDefault(e => e.type == "ActivityType");
+            if (entity == null)
+            {
+                return Tuple.Create(false, "");
+            }
+    
+            var entityStr = entity.entity;
 
             switch (data.intents[0].intent)
             {
                 case "SummariseActivity":
-                    var entityTime = (lEntity)data.entities.FirstOrDefault(e =>
+                    if (entity != null)
+                    {
+
+                        var entityTime = (lEntity)data.entities.FirstOrDefault(e =>
                         e.type == "builtin.datetime.time" ||
                         e.type == "builtin.datetime.duration" ||
                         e.type == "builtin.datetime.date");
 
-                    ParseResult<Period> res = null;
+                        ParseResult<Period> res = null;
 
-                    // TODO: parse the time formats correctly...
-                    if (entityTime.type == "builtin.datetime.duration")
-                    {
-                        res = PeriodPattern.NormalizingIsoPattern.Parse(entityTime.resolution.duration);
+                        // TODO: parse the time formats correctly...
+                        if (entityTime.type == "builtin.datetime.duration")
+                        {
+                            res = PeriodPattern.NormalizingIsoPattern.Parse(entityTime.resolution.duration);
+                        }
+                        else if (entityTime.type == "builtin.datetime.time")
+                        {
+                            res = PeriodPattern.NormalizingIsoPattern.Parse(entityTime.resolution.time);
+                        }
+                        else if (entityTime.type == "builtin.datetime.date")
+                        {
+                            var pattern = LocalDatePattern.CreateWithInvariantCulture("yyyy-MM-dd");
+                            LocalDate parseResult = pattern.Parse(entityTime.resolution.date).Value;
+                        }
                     }
-                    else if (entityTime.type == "builtin.datetime.time")
-                    {
-                        res = PeriodPattern.NormalizingIsoPattern.Parse(entityTime.resolution.time);
-                    }
-                    else if (entityTime.type == "builtin.datetime.date")
-                    {
-                        var pattern = LocalDatePattern.CreateWithInvariantCulture("yyyy-MM-dd");
-                        LocalDate parseResult = pattern.Parse(entityTime.resolution.date).Value;
-                    }
-
 
 
                     //var st = SystemClock.Instance.GetCurrentInstant().InUtc().LocalDateTime - res.Value;
@@ -53,13 +71,6 @@ namespace DXHealthBot.HEALTH
                     DateTime end = DateTime.Now;
 
 
-                    var token = creds.GetToken(userId, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
-                    if (string.IsNullOrEmpty(token))
-                    {
-                        var loginUri = new Uri($"http://localhost:3979/api/auth/home?UserId={userId}");
-                        resultStr = $"Please pay a visit to {loginUri.ToString()} to associate your user identity with your Microsoft Health identity.";
-                        return Tuple.Create(true, resultStr);
-                    }
                     var result = await HealthAPI.GetActivity(token, entityStr, start, end);
                     ret = true;
                     break;

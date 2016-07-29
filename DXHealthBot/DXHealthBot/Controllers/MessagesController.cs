@@ -91,10 +91,6 @@ namespace DXHealthBot
                     strRet = ("Struggling to get a user id...");
                 }
 
-                //get API tokens
-                string healthToken = _creds.GetToken(userID, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
-               
-
                 //now check the message text and process
                 try
                 {
