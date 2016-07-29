@@ -47,9 +47,13 @@ namespace DXHealthBot
         private string CheckDiagnostics(Activity activity)
         {
             string strResult = string.Empty;
+            string userID = activity.From.Id;
 
             switch (activity.Text)
             {
+                case "user":
+                    strResult = $"The userID is: {userID}";
+                    break;
                 case "htoken":
                     strResult = "Your Health API token is: ";
                     break;
@@ -69,14 +73,28 @@ namespace DXHealthBot
 
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
+                //Get user id
+                var userID = activity.From.Id;
+                if (string.IsNullOrEmpty(userID))
+                {
+                    strRet = ("Struggling to get a user id...");
+                }
+
+                //get API tokens
+                string healthToken = _creds.GetToken(userID, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
                
+
+                //now check the message text and process
                 try
                 {
                     //check for diagnostic requests
-                    strRet = CheckDiagnostics(activity);
+                    if (string.IsNullOrEmpty(strRet))
+                    { 
+                        strRet = CheckDiagnostics(activity);
+                    }
 
                     //check LUIS intents
-                    if (strRet == string.Empty)
+                    if (string.IsNullOrEmpty(strRet))
                     {
                         // LUIS
                         HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);

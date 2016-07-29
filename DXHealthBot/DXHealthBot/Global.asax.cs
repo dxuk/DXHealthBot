@@ -10,24 +10,39 @@ namespace DXHealthBot
 
     public interface ICredentialStore
     {
-        string GetToken(string id);
-        void AddToken(string id, string token);
+        string GetToken(string id, string tokenKey);
+        void AddToken(string id, string tokenKey, string token);
     }
 
     public class CredentialStore : ICredentialStore
     {
-        Dictionary<string, string> _idMap = new Dictionary<string, string>();
-        public void AddToken(string id, string token)
+        public const string MSHEALTHAPI_TOKEN_KEY = "HEALTH_TOKEN_KEY";
+
+        Dictionary<string, Dictionary<string, string>> _idMap = new Dictionary<string, Dictionary<string, string>>();
+
+        public void AddToken(string id, string tokenKey, string token)
         {
-            _idMap[id] = token;
+            Dictionary<string, string> dict;
+            bool exists = _idMap.TryGetValue(id, out dict);
+            if (!exists)
+            {
+                dict = new Dictionary<string, string>();
+                _idMap[id] = dict;
+            }
+
+            dict[tokenKey] = token;
         }
 
-        public string GetToken(string id)
+        public string GetToken(string id, string tokenKey)
         {
-            string val = null;
-            if (_idMap.TryGetValue(id, out val))
+            Dictionary<string, string> dict = null;
+            string token = null;
+            if (_idMap.TryGetValue(id, out dict))
             {
-                return val;
+                if (dict.TryGetValue(tokenKey, out token))
+                {
+                    return token;
+                }
             }
             return null;
         }
