@@ -67,20 +67,28 @@ namespace DXHealthBot
             {
                 string strRet = string.Empty;
 
-                // LUIS
-                HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);
-
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
-                //check for diagnostic requests
-                strRet = CheckDiagnostics(activity);
-
-                //check LUIS intents
-                if (strRet == string.Empty)
+               
+                try
                 {
-                    strRet = CheckIntents(stLuis);
+                    //check for diagnostic requests
+                    strRet = CheckDiagnostics(activity);
+
+                    //check LUIS intents
+                    if (strRet == string.Empty)
+                    {
+                        // LUIS
+                        HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);
+                        strRet = CheckIntents(stLuis);
+                    }
                 }
-                
+                catch (Exception ex)
+                {
+                    //print exception into chat stream
+                    strRet = ex.Message;
+                }
+
 
                 // return our reply to the user
                 Activity reply = activity.CreateReply(strRet);
