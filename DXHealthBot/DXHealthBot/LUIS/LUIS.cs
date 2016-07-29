@@ -18,7 +18,7 @@ namespace DXHealthBot
             using (var client = new HttpClient())
             {
                 string key = Environment.GetEnvironmentVariable("DXHEALTHBOT_LUIS_API_KEY");
-                string id = Environment.GetEnvironmentVariable("DXHEALTHBOT_LUIS_APP_ID");
+                string id = Environment.GetEnvironmentVariable("DXHEALTHBOT_LUIS_API_ID");
 
                 string uri = $"https://api.projectoxford.ai/luis/v1/application?id={id}&subscription-key={key}&q={strEscaped}";
 
