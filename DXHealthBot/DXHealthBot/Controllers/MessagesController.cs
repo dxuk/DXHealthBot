@@ -51,20 +51,31 @@ namespace DXHealthBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                string strReply = string.Empty;
+                string strRet = string.Empty;
 
-                // TO DO - set appID and subs Key and import health intents from json
-                // HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);
+                // LUIS
+                HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);
 
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
                 //TO DO
                 //env vars and check token etc.
 
-                strReply = "hello";
+
+                switch (stLuis.intents[0].intent)
+                {
+                    case "SummariseActivity":
+                        strRet = "Summarising activity";
+                        break;
+                    case "None":
+                        break;
+                    default:
+                        strRet = "Sorry, I don't understand, please try again";
+                        break;
+                }
 
                 // return our reply to the user
-                Activity reply = activity.CreateReply(strReply);
+                Activity reply = activity.CreateReply(strRet);
                 await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
