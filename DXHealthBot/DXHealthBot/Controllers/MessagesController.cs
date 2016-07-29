@@ -26,6 +26,38 @@ namespace DXHealthBot
             _creds = MyDependencies._store;
         }
 
+        private string CheckIntents(HealthLUIS stLuis)
+        {
+            string strResult = string.Empty;
+
+            switch (stLuis.intents[0].intent)
+            {
+                case "SummariseActivity":
+                    strResult = "Summarising activity";
+                    break;
+                case "None":
+                    break;
+                default:
+                    strResult = "Sorry, I don't understand, please try again";
+                    break;
+            }
+            return strResult;
+        }
+
+        private string CheckDiagnostics(Activity activity)
+        {
+            string strResult = string.Empty;
+
+            switch (activity.Text)
+            {
+                case "htoken":
+                    strResult = "Your Health API token is: ";
+                    break;
+                case "None":
+                    break;
+            }
+            return strResult;
+        }
 
 
         /// </summary>
@@ -40,21 +72,15 @@ namespace DXHealthBot
 
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
-                //TO DO
-                //env vars and check token etc.
+                //check for diagnostic requests
+                strRet = CheckDiagnostics(activity);
 
-
-                switch (stLuis.intents[0].intent)
+                //check LUIS intents
+                if (strRet == string.Empty)
                 {
-                    case "SummariseActivity":
-                        strRet = "Summarising activity";
-                        break;
-                    case "None":
-                        break;
-                    default:
-                        strRet = "Sorry, I don't understand, please try again";
-                        break;
+                    strRet = CheckIntents(stLuis);
                 }
+                
 
                 // return our reply to the user
                 Activity reply = activity.CreateReply(strRet);
