@@ -8,6 +8,8 @@ using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using DXHealthBot.Model;
+using Microsoft.Bot.Builder.Dialogs; 
+
 
 namespace DXHealthBot
 {
@@ -25,6 +27,19 @@ namespace DXHealthBot
         {
             _creds = MyDependencies._store;
         }
+
+       /* private async Task NotifyUser(this IDialogContext context, string messageText)
+        { 
+            if (!string.IsNullOrEmpty(messageText)) 
+            { 
+                 string serviceUrl = context.PrivateConversationData.Get<string>("ServiceUrl"); 
+                 var connector = new ConnectorClient(new Uri(serviceUrl)); 
+                 var reply = context.MakeMessage(); 
+                 reply.Text = messageText; 
+                 await connector.Conversations.ReplyToActivityAsync((Activity)reply); 
+             } 
+         }*/
+
 
         private string CheckIntents(HealthLUIS stLuis)
         {
@@ -83,7 +98,7 @@ namespace DXHealthBot
 
                 //get API tokens
                 string healthToken = _creds.GetToken(userID, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
-               
+
 
                 //now check the message text and process
                 try
