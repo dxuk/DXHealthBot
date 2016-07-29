@@ -8,9 +8,15 @@ using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using DXHealthBot.Model;
+using System.Collections.Generic;
 
 namespace DXHealthBot
 {
+    public interface IIntentProcessor
+    {
+        bool ProcessIntent(string intent, ref string result);
+    }
+
     [BotAuthentication]
     public class MessagesController : ApiController
     {
@@ -30,17 +36,18 @@ namespace DXHealthBot
         {
             string strResult = string.Empty;
 
-            switch (stLuis.intents[0].intent)
+            foreach (var intentHandler in MyDependencies.IntentHandlers)
             {
-                case "SummariseActivity":
-                    strResult = "Summarising activity";
-                    break;
-                case "None":
-                    break;
-                default:
-                    strResult = "Sorry, I don't understand, please try again";
+                bool handled = intentHandler.ProcessIntent(stLuis.intents[0].intent, ref strResult);
+                if (handled == true)
                     break;
             }
+
+            if (string.IsNullOrEmpty(strResult))
+            {
+                strResult = "Sorry, I don't understand, please try again";
+            }
+
             return strResult;
         }
 
