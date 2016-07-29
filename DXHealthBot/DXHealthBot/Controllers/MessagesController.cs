@@ -55,7 +55,8 @@ namespace DXHealthBot
                     strResult = $"The userID is: {userID}";
                     break;
                 case "htoken":
-                    strResult = "Your Health API token is: ";
+                    string healthToken = _creds.GetToken(userID, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
+                    strResult = $"Your Health API token is: {healthToken} ";
                     break;
                 case "None":
                     break;
