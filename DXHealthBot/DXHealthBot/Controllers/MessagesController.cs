@@ -110,7 +110,7 @@ namespace DXHealthBot
                         strRet = await CheckIntentsAsync(stLuis, activity);
                         TelemetryClient telemetry = new TelemetryClient();
                        
-                        telemetry.TrackEvent(strRet);
+                        telemetry.TrackEvent(stLuis.query);
 
                     }
                 }
