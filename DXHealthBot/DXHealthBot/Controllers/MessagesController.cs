@@ -9,6 +9,7 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using DXHealthBot.Model;
 using System.Collections.Generic;
+using Microsoft.ApplicationInsights;
 
 namespace DXHealthBot
 {
@@ -107,11 +108,14 @@ namespace DXHealthBot
                         // LUIS
                         HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);
                         strRet = await CheckIntentsAsync(stLuis, activity);
+                        TelemetryClient telemetry = new TelemetryClient();
+                       
+                        telemetry.TrackEvent(strRet);
+
                     }
                 }
                 catch (Exception ex)
-                {
-                    //print exception into chat stream
+                { 
                     strRet = ex.Message;
                 }
 
