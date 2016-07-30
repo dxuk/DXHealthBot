@@ -82,6 +82,7 @@ namespace DXHealthBot
 
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
+
         {
             if (activity.Type == ActivityTypes.Message)
             {
@@ -150,8 +151,8 @@ namespace DXHealthBot
 
             var ub = new UriBuilder("https://graph.microsoft.com");
 
-            ub.Path = "v1.0" + "/" + "me/events";
-            //ub.Query = query;
+            ub.Path = "v1.0" + "/" + "me/calendar/events";
+            ub.Query = "$select=subject";
 
             string resStr = string.Empty;
 
