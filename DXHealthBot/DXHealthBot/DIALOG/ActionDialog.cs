@@ -59,6 +59,8 @@ namespace DXHealthBot.DIALOGS
             await context.PostAsync(message);
             context.Wait(MessageReceivedAsync);
         }
+
     }
-}
+
+ }
 

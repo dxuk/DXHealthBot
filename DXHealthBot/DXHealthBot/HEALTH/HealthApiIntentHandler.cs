@@ -122,7 +122,8 @@ namespace DXHealthBot.HEALTH
                     var avSleepStr = $"{sleepSpan.ToString(@"%h")} hrs {sleepSpan.ToString(@"%m")} mins";
                     var totalSleepStr = $"{totalSpan.ToString(@"%d")} days {totalSpan.ToString(@"%h")} hrs {totalSpan.ToString(@"%m")} mins";
 
-                    resultStr = $"You have tracked {num} sleeps - average sleep per night {avSleepStr} for a total of {totalSleepStr}";
+                    resultStr = $"You have tracked {num} sleeps - average sleep per night {avSleepStr} for a total of {totalSleepStr} \n\n This was an insufficient amount of sleep :( \n\n Do you want more details (y/n)?";
+  
 
                     ret = true;
                     break;

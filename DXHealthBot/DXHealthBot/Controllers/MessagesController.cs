@@ -59,7 +59,7 @@ namespace DXHealthBot
             return strResult;
         }
 
-        private string CheckDiagnostics(Activity activity)
+        private async Task<string> ParseText(Activity activity)
         {
             string strResult = string.Empty;
             string userID = activity.From.Id;
@@ -72,6 +72,26 @@ namespace DXHealthBot
                 case "htoken":
                     string healthToken = _creds.GetToken(userID, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
                     strResult = $"Your Health API token is: {healthToken} ";
+                    break;
+                case "y":
+                case "Y":
+                    //this is hardcoded in for the calendar
+                    //Get O365Login AccessToken
+                    await Conversation.SendAsync(activity, () => new ActionDialog());
+                    var events = await GetCalendarItems(userID);
+
+            
+                    var root = JsonConvert.DeserializeObject<Rootobject>(events);
+                    var count = root.value.Count();
+                    strResult += $"You had {count} events in that time which may have affected your sleep...\n\n";
+                    strResult += Environment.NewLine;
+
+                    strResult += string.Join("\n\n", root.value.Select(v => v.subject));
+
+                    break;
+                case "n":
+                case "N":
+                    strResult = "No problem! Your funeral...";
                     break;
                 case "None":
                     break;
@@ -97,20 +117,15 @@ namespace DXHealthBot
                     strRet = ("Struggling to get a user id...");
                 }
 
-                
-
                 //now check the message text and process
                 try
                 {
-                    //check for diagnostic requests
+                    //parse text
                     if (string.IsNullOrEmpty(strRet))
                     { 
-                        strRet = CheckDiagnostics(activity);
+                        strRet = await ParseText(activity);
                     }
-
-                    //Get O365Login AccessToken
-                    await Conversation.SendAsync(activity, () => new ActionDialog());
-                    var events = await GetCalendarItems(userID);
+                  
 
                     //check LUIS intents
                     if (string.IsNullOrEmpty(strRet))
