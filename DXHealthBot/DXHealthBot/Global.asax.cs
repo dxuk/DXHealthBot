@@ -1,6 +1,8 @@
 ﻿using DXHealthBot.HEALTH;
+using Microsoft.IdentityModel.Protocols;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
@@ -18,6 +20,7 @@ namespace DXHealthBot
     public class CredentialStore : ICredentialStore
     {
         public const string MSHEALTHAPI_TOKEN_KEY = "HEALTH_TOKEN_KEY";
+        public const string O365_TOKEN_KEY = "O365_TOKEN_KEY";
 
         Dictionary<string, Dictionary<string, string>> _idMap = new Dictionary<string, Dictionary<string, string>>();
 
@@ -70,6 +73,26 @@ namespace DXHealthBot
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
+            ReadOAuthSettings();
+        }
+
+        private void ReadOAuthSettings()
+        {
+            AuthBot.Models.AuthSettings.Mode = ConfigurationManager.AppSettings["ActiveDirectory.Mode"];
+
+            AuthBot.Models.AuthSettings.EndpointUrl = ConfigurationManager.AppSettings["ActiveDirectory.EndpointUrl"];
+
+            AuthBot.Models.AuthSettings.Tenant = ConfigurationManager.AppSettings["ActiveDirectory.Tenant"];
+
+            AuthBot.Models.AuthSettings.RedirectUrl = ConfigurationManager.AppSettings["ActiveDirectory.RedirectUrl"];
+
+            AuthBot.Models.AuthSettings.ClientId = ConfigurationManager.AppSettings["ActiveDirectory.ClientId"];
+
+            AuthBot.Models.AuthSettings.ClientSecret = ConfigurationManager.AppSettings["ActiveDirectory.ClientSecret"];
+
+            AuthBot.Models.AuthSettings.Scopes = ConfigurationManager.AppSettings["ActiveDirectory.Scopes"].Split(',');
         }
     }
+
+    
 }

@@ -9,6 +9,8 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using DXHealthBot.Model;
 using System.Collections.Generic;
+using Microsoft.Bot.Builder.Dialogs;
+using DXHealthBot.DIALOGS;
 
 namespace DXHealthBot
 {
@@ -91,6 +93,8 @@ namespace DXHealthBot
                     strRet = ("Struggling to get a user id...");
                 }
 
+                
+
                 //now check the message text and process
                 try
                 {
@@ -99,6 +103,9 @@ namespace DXHealthBot
                     { 
                         strRet = CheckDiagnostics(activity);
                     }
+
+                    //Get O365Login AccessToken
+                    await Conversation.SendAsync(activity, () => new ActionDialog());
 
                     //check LUIS intents
                     if (string.IsNullOrEmpty(strRet))
