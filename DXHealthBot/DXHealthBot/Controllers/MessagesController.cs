@@ -9,6 +9,10 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using DXHealthBot.Model;
 using System.Collections.Generic;
+using Microsoft.ApplicationInsights;
+using Microsoft.Bot.Builder.Dialogs;
+using DXHealthBot.DIALOGS;
+using System.Net.Http.Headers;
 
 namespace DXHealthBot
 {
@@ -25,6 +29,7 @@ namespace DXHealthBot
         /// Receive a message from a user and reply to it
         /// 
         /// 
+        //test CI
 
         ICredentialStore _creds;
         public MessagesController()
@@ -77,11 +82,12 @@ namespace DXHealthBot
 
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
+
         {
             if (activity.Type == ActivityTypes.Message)
             {
                 string strRet = string.Empty;
-
+                
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
                 //Get user id
@@ -90,6 +96,8 @@ namespace DXHealthBot
                 {
                     strRet = ("Struggling to get a user id...");
                 }
+
+                
 
                 //now check the message text and process
                 try
@@ -100,20 +108,28 @@ namespace DXHealthBot
                         strRet = CheckDiagnostics(activity);
                     }
 
+                    //Get O365Login AccessToken
+                    await Conversation.SendAsync(activity, () => new ActionDialog());
+                    var events = await GetCalendarItems(userID);
+
                     //check LUIS intents
                     if (string.IsNullOrEmpty(strRet))
                     {
                         // LUIS
                         HealthLUIS stLuis = await LUISHealthClient.ParseUserInput(activity.Text);
                         strRet = await CheckIntentsAsync(stLuis, activity);
+                        TelemetryClient telemetry = new TelemetryClient();
+                       
+                        telemetry.TrackEvent(stLuis.query);
+
                     }
                 }
                 catch (Exception ex)
-                {
-                    //print exception into chat stream
+                { 
                     strRet = ex.Message;
                 }
 
+                
 
                 // return our reply to the user
                 Activity reply = activity.CreateReply(strRet);
@@ -127,6 +143,39 @@ namespace DXHealthBot
             return response;
         }
 
+        private async Task<string> GetCalendarItems(string userId)
+        {
+            string token = MyDependencies._store.GetToken(userId, CredentialStore.O365_TOKEN_KEY);
+            var http = new HttpClient();
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var ub = new UriBuilder("https://graph.microsoft.com");
+
+            ub.Path = "v1.0" + "/" + "me/calendar/events";
+            ub.Query = "$select=subject";
+
+            string resStr = string.Empty;
+
+            var resp = await http.GetAsync(ub.Uri);
+
+            if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                // If we are unauthorized here assume that our token may have expired and use the  
+                // refresh token to get a new one and then try the request again.. 
+                // TODO: handle this - we can cache the refresh token in the same flow as the access token
+                // just haven't done it.
+                return "";
+
+                // Re-issue the same request (will use new auth token now) 
+                //return await MakeRequestAsync(path, query);
+            }
+
+            if (resp.IsSuccessStatusCode)
+            {
+                resStr = await resp.Content.ReadAsStringAsync();
+            }
+            return resStr;
+        }
 
         private Activity HandleSystemMessage(Activity message)
         {
