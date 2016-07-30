@@ -21,7 +21,7 @@ namespace DXHealthBot.HEALTH
             if (string.IsNullOrEmpty(token))
             {
                 var loginUri = new Uri($"http://localhost:3979/api/auth/home?UserId={userId}");
-                resultStr = $"Please pay a visit to {loginUri.ToString()} to associate your user identity with your Microsoft Health identity.";
+                resultStr = $"Hi, I am the DXHealthBot. \n\n Hope you are well! \n\n I need to connect to your Health data in order to assist you. \n\n Please visit {loginUri.ToString()} to enable me to have access to your Microsoft Health data.";
                 return Tuple.Create(true, resultStr);
             }
 
