@@ -22,7 +22,7 @@ namespace DXHealthBot.HEALTH
             var token = creds.GetToken(userId, CredentialStore.MSHEALTHAPI_TOKEN_KEY);
             if (string.IsNullOrEmpty(token))
             {
-                var loginUri = new Uri($"http://localhost:3979/api/auth/home?UserId={userId}");
+                var loginUri = new Uri($"https://weebyy.azurewebsites.net/api/auth/home?UserId={userId}");
                 resultStr = $"Hi, I am the DXHealthBot. \n\n Hope you are well! \n\n I need to connect to your Health data in order to assist you. \n\n Please visit {loginUri.ToString()} to enable me to have access to your Microsoft Health data.";
                 return Tuple.Create(true, resultStr);
             }
